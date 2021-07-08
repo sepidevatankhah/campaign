@@ -1,12 +1,15 @@
 package de.westwing.campaignbrowser.presentation.list
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.android.AndroidInjection
 import de.westwing.campaignbrowser.databinding.ActivityCampaignListBinding
 import de.westwing.campaignbrowser.di.ViewModelFactory
-import de.westwing.campaignbrowser.domain.model.Campaign
+import de.westwing.campaignbrowser.presentation.utils.hide
+import de.westwing.campaignbrowser.presentation.utils.show
 import javax.inject.Inject
 
 class CampaignListActivity : AppCompatActivity() {
@@ -18,7 +21,9 @@ class CampaignListActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityCampaignListBinding
 
-    private val adapter = CampaignListAdapter()
+    private val campaignAdapter = CampaignListAdapter {
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -27,15 +32,50 @@ class CampaignListActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         viewModel = ViewModelProvider(this, viewModelFactory).get(CampaignViewModel::class.java)
-        binding.campaignsRecycler.adapter = adapter
+        viewModel.getCampaignList()
+
     }
 
     override fun onStart() {
         super.onStart()
-        viewModel.campaignsData.observe(this, { campaigns -> processViewState(campaigns) })
+        viewModel.liveData.observe(this, { campaigns -> processViewState(campaigns) })
+        initRecyclerView()
     }
 
-    internal fun processViewState(campaigns: List<Campaign>) {
-        adapter.submitList(campaigns)
+    internal fun processViewState(state: ListViewState) {
+        when (state) {
+            is ListViewState.Loading -> {
+                if (campaignAdapter.itemCount == 0) {
+                    binding.loadingIndicator.show()
+                    binding.campaignsRecycler.hide()
+                }
+            }
+            is ListViewState.Loaded -> {
+                binding.loadingIndicator.hide()
+                binding.campaignsRecycler.show()
+                campaignAdapter.submitList(state.campaigns)
+                campaignAdapter.notifyDataSetChanged()
+                initRecyclerView()
+            }
+            is ListViewState.Error -> {
+//                binding.swipeRefresh.isRefreshing = false
+//                binding.spinner.hide()
+                Log.e(
+                    "HomeFragment",
+                    state.throwable.message,
+                    state.throwable
+                )
+//                binding.root.toastOopsError()
+            }
+        }
+
+    }
+
+    private fun initRecyclerView() {
+        binding.campaignsRecycler.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            adapter = campaignAdapter
+        }
     }
 }
