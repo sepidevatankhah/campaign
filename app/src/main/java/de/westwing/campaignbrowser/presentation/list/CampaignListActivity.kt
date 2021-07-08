@@ -3,23 +3,15 @@ package de.westwing.campaignbrowser.presentation.list
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.android.AndroidInjection
 import de.westwing.campaignbrowser.databinding.ActivityCampaignListBinding
-import de.westwing.campaignbrowser.di.ViewModelFactory
+import de.westwing.campaignbrowser.presentation.base.BaseActivity
 import de.westwing.campaignbrowser.presentation.utils.hide
 import de.westwing.campaignbrowser.presentation.utils.show
 import de.westwing.campaignbrowser.presentation.utils.toastOopsError
-import javax.inject.Inject
 
-class CampaignListActivity : AppCompatActivity() {
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory<CampaignViewModel>
-
-    private lateinit var viewModel: CampaignViewModel
+class CampaignListActivity : BaseActivity<ListViewState, CampaignViewModel>() {
 
     lateinit var binding: ActivityCampaignListBinding
 
@@ -32,15 +24,14 @@ class CampaignListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCampaignListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        viewModel = ViewModelProvider(this, viewModelFactory).get(CampaignViewModel::class.java)
+        createViewModel(CampaignViewModel::class.java)
         setupSwipeRefreshLayout()
         viewModel.getCampaignList()
-        viewModel.liveData.observe(this, { campaigns -> processViewState(campaigns) })
+        startObserving()
         initRecyclerView()
     }
 
-    private fun processViewState(state: ListViewState) {
+    override fun processViewState(state: ListViewState) {
         binding.swipeRefresh.isRefreshing = false
         when (state) {
             is ListViewState.Loading -> {
