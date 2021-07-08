@@ -7,7 +7,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.westwing.campaignbrowser.domain.Campaign
+import de.westwing.campaignbrowser.domain.model.Campaign
 import de.westwing.campaignbrowser.presentation.list.CampaignListActivity
 import de.westwing.campaignbrowser.presentation.list.CampaignViewHolder
 import org.junit.Assert.assertEquals

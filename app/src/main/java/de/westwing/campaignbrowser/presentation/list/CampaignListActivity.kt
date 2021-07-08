@@ -6,8 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import dagger.android.AndroidInjection
 import de.westwing.campaignbrowser.databinding.ActivityCampaignListBinding
 import de.westwing.campaignbrowser.di.ViewModelFactory
-import de.westwing.campaignbrowser.domain.Campaign
-import de.westwing.campaignbrowser.presentation.CampaignViewModel
+import de.westwing.campaignbrowser.domain.model.Campaign
 import javax.inject.Inject
 
 class CampaignListActivity : AppCompatActivity() {
