@@ -8,13 +8,13 @@ import dagger.Module
 import dagger.Provides
 import de.westwing.campaignbrowser.di.scope.ForApplication
 import de.westwing.campaignbrowser.domain.executer.PostExecutionThread
-import de.westwing.campaignbrowser.util.LocalConnectivityManagerImp
+import de.westwing.campaignbrowser.common.NetworkManagerImp
 import de.westwing.campaignbrowser.R
 import de.westwing.campaignbrowser.data.ApiInterface
 import de.westwing.campaignbrowser.data.CampaignRepositoryImpl
 import de.westwing.campaignbrowser.data.extractor.NetworkJobExecutor
 import de.westwing.campaignbrowser.domain.CampaignRepository
-import de.westwing.campaignbrowser.domain.LocalConnectivityManager
+import de.westwing.campaignbrowser.domain.NetworkManager
 import de.westwing.campaignbrowser.domain.executer.UseCaseExecutor
 import de.westwing.campaignbrowser.presentation.CampaignApp
 import de.westwing.campaignbrowser.presentation.executer.UiThreadExecutor
@@ -48,13 +48,12 @@ abstract class AppModule {
         @Provides
         @Singleton
         fun okHttpClient(
-            connectivityManager: LocalConnectivityManager,
+            connectivityManager: NetworkManager,
             @ForApplication context: Context
         ): OkHttpClient {
             val cacheSize = (5 * 1024 * 1024).toLong()
 
             val myCache = Cache(context.cacheDir, cacheSize)
-
 
             val builder = OkHttpClient.Builder()
                 .readTimeout(15, TimeUnit.SECONDS)
@@ -148,7 +147,7 @@ abstract class AppModule {
 
         @Provides
         @Singleton
-        fun provideConnectivityManager(connectivityManagerImp: LocalConnectivityManagerImp)
-                : LocalConnectivityManager = connectivityManagerImp
+        fun provideConnectivityManager(connectivityManagerImp: NetworkManagerImp)
+                : NetworkManager = connectivityManagerImp
     }
 }

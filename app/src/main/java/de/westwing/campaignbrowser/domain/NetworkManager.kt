@@ -1,5 +1,5 @@
 package de.westwing.campaignbrowser.domain
 
-interface LocalConnectivityManager {
+interface NetworkManager {
     fun hasNetwork(): Boolean
 }

@@ -15,7 +15,10 @@ class CampaignRepositoryImpl @Inject constructor(private val apiInterface: ApiIn
     override fun getCampaigns(): Single<List<Campaign>> {
         return Single.create { emitter ->
             apiInterface.getCampaigns()
-                .map { response -> response.metadata.data.map { it.map() } }
+                .map { response ->
+                    response.metadata.data.filterNot { model -> model.name.isNullOrBlank() || model.description.isBlank() }
+                        .map { it.map() }
+                }
                 .subscribe(
                     { response ->
                         emitter.onSuccess(response)
@@ -35,4 +38,4 @@ class CampaignRepositoryImpl @Inject constructor(private val apiInterface: ApiIn
         )
 }
 
-fun ImageDto.mapImage(): ImageModel = ImageModel(url = url)
+fun ImageDto.mapImage(): ImageModel = ImageModel(url = this.url)

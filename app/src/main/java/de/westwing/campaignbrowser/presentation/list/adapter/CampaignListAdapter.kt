@@ -4,9 +4,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import de.westwing.campaignbrowser.databinding.ItemCampaignBinding
 import de.westwing.campaignbrowser.domain.model.Campaign
+import de.westwing.campaignbrowser.presentation.list.adapter.CampaignViewHolder
 
 typealias ClickListener = (Campaign) -> Unit
 
@@ -39,17 +39,3 @@ class CampaignListAdapter(private val onItemClicked: ClickListener) :
     }
 }
 
-class CampaignViewHolder(
-    val binding: ItemCampaignBinding,
-    private val onItemClicked: ClickListener
-) : RecyclerView.ViewHolder(binding.root) {
-    fun bind(model: Campaign) {
-        with(binding) {
-            model.apply {
-                campaignName.text = name
-                campaignDescription.text = description
-                root.setOnClickListener { onItemClicked.invoke(this) }
-            }
-        }
-    }
-}

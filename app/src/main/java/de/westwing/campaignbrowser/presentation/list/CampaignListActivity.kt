@@ -1,15 +1,17 @@
 package de.westwing.campaignbrowser.presentation.list
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import dagger.android.AndroidInjection
 import de.westwing.campaignbrowser.databinding.ActivityCampaignListBinding
 import de.westwing.campaignbrowser.di.ViewModelFactory
 import de.westwing.campaignbrowser.presentation.utils.hide
 import de.westwing.campaignbrowser.presentation.utils.show
+import de.westwing.campaignbrowser.presentation.utils.toastOopsError
 import javax.inject.Inject
 
 class CampaignListActivity : AppCompatActivity() {
@@ -32,17 +34,14 @@ class CampaignListActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         viewModel = ViewModelProvider(this, viewModelFactory).get(CampaignViewModel::class.java)
+        setupSwipeRefreshLayout()
         viewModel.getCampaignList()
-
-    }
-
-    override fun onStart() {
-        super.onStart()
         viewModel.liveData.observe(this, { campaigns -> processViewState(campaigns) })
         initRecyclerView()
     }
 
-    internal fun processViewState(state: ListViewState) {
+    private fun processViewState(state: ListViewState) {
+        binding.swipeRefresh.isRefreshing = false
         when (state) {
             is ListViewState.Loading -> {
                 if (campaignAdapter.itemCount == 0) {
@@ -54,18 +53,16 @@ class CampaignListActivity : AppCompatActivity() {
                 binding.loadingIndicator.hide()
                 binding.campaignsRecycler.show()
                 campaignAdapter.submitList(state.campaigns)
-                campaignAdapter.notifyDataSetChanged()
-                initRecyclerView()
             }
             is ListViewState.Error -> {
-//                binding.swipeRefresh.isRefreshing = false
-//                binding.spinner.hide()
+                binding.loadingIndicator.hide()
+                binding.swipeRefresh.isRefreshing = false
                 Log.e(
-                    "HomeFragment",
+                    "CampaignListActivity",
                     state.throwable.message,
                     state.throwable
                 )
-//                binding.root.toastOopsError()
+                binding.root.toastOopsError()
             }
         }
 
@@ -74,8 +71,17 @@ class CampaignListActivity : AppCompatActivity() {
     private fun initRecyclerView() {
         binding.campaignsRecycler.apply {
             setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
+            val colCount =
+                if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 2 else 1
+            layoutManager = GridLayoutManager(context, colCount)
             adapter = campaignAdapter
+        }
+    }
+
+    private fun setupSwipeRefreshLayout() {
+        binding.swipeRefresh.setOnRefreshListener {
+            binding.swipeRefresh.isRefreshing = true
+            viewModel.getCampaignList()
         }
     }
 }
