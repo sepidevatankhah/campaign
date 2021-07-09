@@ -1,7 +1,5 @@
 package de.westwing.campaignbrowser.presentation.base
 
-import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
